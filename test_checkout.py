@@ -60,3 +60,14 @@ def test_subtotal_ignora_precio_enviado_por_cliente():
 
     # Assert
     assert subtotal == Decimal("24999.90")
+
+def test_producto_inexistente_lanza_error():
+    # Arrange
+    producto = item(producto="gorra")
+
+    # Act
+    with pytest.raises(CheckoutError) as error:
+        validar_item(producto)
+
+    # Assert
+    assert error.value.code == "PRODUCTO_INEXISTENTE"
