@@ -27,3 +27,14 @@ def codigo_de_error(funcion, *args):
 
 def test_cantidad_cero_es_invalida():
     assert codigo_de_error(validar_item, item(cantidad=0)) == "CANTIDAD_INVALIDA"
+
+def test_subtotal_dos_buzos_utiliza_decimal():
+    # Arrange
+    carrito = [item(producto="buzo", cantidad=2)]
+
+    # Act
+    subtotal = calcular_subtotal(carrito)
+
+    # Assert
+    assert isinstance(subtotal, Decimal)
+    assert subtotal == Decimal("49999.80")
