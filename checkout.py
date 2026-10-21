@@ -45,6 +45,9 @@ ENVIOS = {
 
 
 def validar_item(item):
+    if item.get("producto") not in CATALOGO:
+        raise CheckoutError("PRODUCTO_INEXISTENTE", "El producto no existe")
+
     item["talle"] = item["talle"].upper()
 
     if item["talle"] not in TALLES:
