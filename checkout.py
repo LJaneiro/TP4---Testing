@@ -32,10 +32,10 @@ CUPONES = {
 }
 
 ENVIOS = {
-    "CABA": 2500,
-    "GBA": 4000,
-    "INTERIOR": 6500,
-    "RETIRO": 0,
+    "CABA": Decimal("2500.00"),
+    "GBA": Decimal("4000.00"),
+    "INTERIOR": Decimal("6500.00"),
+    "RETIRO": Decimal("0.00"),
 }
 
 
@@ -111,14 +111,13 @@ def calcular_envio(subtotal, zona):
     if zona not in ENVIOS:
         raise CheckoutError(
             "ZONA_INVALIDA",
-            f"Zona inválida. Opciones: {ENVIOS.keys().join(', ')}",
+            f"Zona inválida. Opciones: {', '.join(ENVIOS)}",
         )
 
-    if subtotal >= 60000:
-        return 0
+    if subtotal >= Decimal("60000.00"):
+        return Decimal("0.00")
 
     return ENVIOS[zona]
-
 
 def calcular_total(carrito, zona, cupon=None, fecha=date.today()):
     subtotal = calcular_subtotal(carrito)

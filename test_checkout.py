@@ -203,3 +203,57 @@ def test_cupon_inventado_es_invalido():
     assert codigo_de_error(
         calcular_descuento, subtotal, 1, "DEBUG100", HOY_VIGENTE
     ) == "CUPON_INVALIDO"
+
+@pytest.mark.parametrize("zona, costo", [
+    ("CABA", "2500.00"),
+    ("GBA", "4000.00"),
+    ("INTERIOR", "6500.00"),
+    ("RETIRO", "0.00"),
+])
+def test_costo_envio_por_zona(zona, costo):
+    # Arrange
+    subtotal = Decimal("30000.00")
+
+    # Act
+    envio = calcular_envio(subtotal, zona)
+
+    # Assert
+    assert envio == Decimal(costo)
+    assert isinstance(envio, Decimal)
+
+
+def test_envio_acepta_minusculas_y_espacios():
+    # Arrange
+    subtotal = Decimal("30000.00")
+
+    # Act
+    envio = calcular_envio(subtotal, " caba ")
+
+    # Assert
+    assert envio == Decimal("2500.00")
+
+
+@pytest.mark.parametrize("subtotal, esperado", [
+    ("59999.99", "2500.00"),
+    ("60000.00", "0.00"),
+    ("60000.01", "0.00"),
+])
+def test_limite_envio_gratuito(subtotal, esperado):
+    # Arrange
+    monto = Decimal(subtotal)
+
+    # Act
+    envio = calcular_envio(monto, "CABA")
+
+    # Assert
+    assert envio == Decimal(esperado)
+
+
+def test_zona_invalida_lanza_error():
+    # Arrange
+    subtotal = Decimal("30000.00")
+
+    # Act y Assert
+    assert codigo_de_error(
+        calcular_envio, subtotal, "MARTE"
+    ) == "ZONA_INVALIDA"
