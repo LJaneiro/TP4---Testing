@@ -38,3 +38,15 @@ def test_subtotal_dos_buzos_utiliza_decimal():
     # Assert
     assert isinstance(subtotal, Decimal)
     assert subtotal == Decimal("49999.80")
+
+def test_descuento_redondea_medio_centavo_hacia_arriba():
+    # Arrange
+    subtotal = Decimal("11999.50")
+    fecha = HOY_VIGENTE
+
+    # Act
+    descuento = calcular_descuento(subtotal, 1, "EGRESADOS2026", fecha)
+
+    # Assert
+    assert descuento == Decimal("1799.93")
+    assert isinstance(descuento, Decimal)
