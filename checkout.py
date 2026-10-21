@@ -59,7 +59,7 @@ def calcular_subtotal(carrito):
     for item in carrito:
         validar_item(item)
         try:
-            precio = item.get("precio", CATALOGO[item["producto"]])
+            precio = CATALOGO[item["producto"]]
         except:
             continue
         subtotal += precio * item["cantidad"]
