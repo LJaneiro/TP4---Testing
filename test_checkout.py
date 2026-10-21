@@ -71,3 +71,13 @@ def test_producto_inexistente_lanza_error():
 
     # Assert
     assert error.value.code == "PRODUCTO_INEXISTENTE"
+
+def test_talle_con_espacios_es_valido():
+    # Arrange
+    producto = item(talle=" m ")
+
+    # Act
+    validar_item(producto)
+
+    # Assert
+    assert producto["talle"].strip().upper() == "M"
