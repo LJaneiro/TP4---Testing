@@ -19,9 +19,21 @@ CATALOGO = {
 TALLES = ["XS", "S", "M", "L", "XL", "XXL"]
 
 CUPONES = {
-    "EGRESADOS2026": {"tipo": "porcentaje", "valor": 0.15, "vence": date(2026, 11, 30)},
-    "BIENVENIDA": {"tipo": "fijo", "valor": 3000, "minimo": 20000},
-    "DEBUG100": {"tipo": "porcentaje", "valor": 1.0, "vence": date(2099, 12, 31)},
+    "EGRESADOS2026": {
+        "tipo": "porcentaje",
+        "valor": Decimal("0.15"),
+        "vence": date(2026, 11, 30),
+    },
+    "BIENVENIDA": {
+        "tipo": "fijo",
+        "valor": Decimal("3000.00"),
+        "minimo": Decimal("20000.00"),
+    },
+    "DEBUG100": {
+        "tipo": "porcentaje",
+        "valor": Decimal("1.0"),
+        "vence": date(2099, 12, 31),
+    },
 }
 
 ENVIOS = {
@@ -56,10 +68,10 @@ def calcular_subtotal(carrito):
 
 
 def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=date.today()):
-    descuento = 0
+    descuento = Decimal("0.00")
 
     if cantidad_prendas > 5:
-        descuento += subtotal * 0.10
+        descuento += subtotal * Decimal("0.10")
 
     if cupon != None:
         codigo = cupon.strip()
@@ -82,7 +94,7 @@ def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=date.today(
                 )
             descuento += datos["valor"]
 
-    return round(descuento, 2)
+    return descuento.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def calcular_envio(subtotal, zona):
