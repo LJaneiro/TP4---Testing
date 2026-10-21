@@ -135,3 +135,71 @@ def test_subtotal_varios_productos():
 
     # Assert
     assert subtotal == Decimal("109999.29")
+
+def test_cinco_prendas_tienen_descuento():
+    # Arrange
+    subtotal = Decimal("100000.00")
+
+    # Act
+    descuento = calcular_descuento(subtotal, 5, None, HOY_VIGENTE)
+
+    # Assert
+    assert descuento == Decimal("10000.00")
+
+
+def test_cupon_acepta_minusculas_y_espacios():
+    # Arrange
+    subtotal = Decimal("24999.90")
+
+    # Act
+    descuento = calcular_descuento(subtotal, 1, " bienvenida ", HOY_VIGENTE)
+
+    # Assert
+    assert descuento == Decimal("3000.00")
+
+
+@pytest.mark.parametrize("cupon", [None, "", "   "])
+def test_cupon_vacio_no_aplica_descuento(cupon):
+    # Arrange
+    subtotal = Decimal("24999.90")
+
+    # Act
+    descuento = calcular_descuento(subtotal, 1, cupon, HOY_VIGENTE)
+
+    # Assert
+    assert descuento == Decimal("0.00")
+
+
+def test_cupon_valido_el_dia_de_vencimiento():
+    # Arrange
+    subtotal = Decimal("24999.90")
+    fecha = date(2026, 11, 30)
+
+    # Act
+    descuento = calcular_descuento(subtotal, 1, "EGRESADOS2026", fecha)
+
+    # Assert
+    assert descuento == Decimal("3749.99")
+
+
+def test_descuentos_no_se_acumulan():
+    # Arrange
+    subtotal = Decimal("59997.50")
+
+    # Act
+    descuento = calcular_descuento(
+        subtotal, 5, "EGRESADOS2026", HOY_VIGENTE
+    )
+
+    # Assert
+    assert descuento == Decimal("8999.63")
+
+
+def test_cupon_inventado_es_invalido():
+    # Arrange
+    subtotal = Decimal("24999.90")
+
+    # Act y Assert
+    assert codigo_de_error(
+        calcular_descuento, subtotal, 1, "DEBUG100", HOY_VIGENTE
+    ) == "CUPON_INVALIDO"

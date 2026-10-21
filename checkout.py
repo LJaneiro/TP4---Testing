@@ -29,11 +29,6 @@ CUPONES = {
         "valor": Decimal("3000.00"),
         "minimo": Decimal("20000.00"),
     },
-    "DEBUG100": {
-        "tipo": "porcentaje",
-        "valor": Decimal("1.0"),
-        "vence": date(2099, 12, 31),
-    },
 }
 
 ENVIOS = {
@@ -71,32 +66,41 @@ def calcular_subtotal(carrito):
     return subtotal
 
 
-def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=date.today()):
-    descuento = Decimal("0.00")
+def calcular_descuento(subtotal, cantidad_prendas, cupon=None, fecha=None):
+    if fecha is None:
+        fecha = date.today()
 
-    if cantidad_prendas > 5:
-        descuento += subtotal * Decimal("0.10")
+    descuento_cantidad = Decimal("0.00")
+    descuento_cupon = Decimal("0.00")
 
-    if cupon != None:
-        codigo = cupon.strip()
+    if cantidad_prendas >= 5:
+        descuento_cantidad = subtotal * Decimal("0.10")
 
-        if codigo not in CUPONES:
-            raise CheckoutError("CUPON_INVALIDO", "El cupón no existe")
+    if cupon is not None:
+        codigo = cupon.strip().upper()
 
-        datos = CUPONES[codigo]
+        if codigo:
+            if codigo not in CUPONES:
+                raise CheckoutError("CUPON_INVALIDO", "El cupón no existe")
 
-        if datos["tipo"] == "porcentaje":
-            if not fecha < datos["vence"]:
-                raise CheckoutError("CUPON_VENCIDO", "El cupón está vencido")
-            descuento += subtotal * datos["valor"]
+            datos = CUPONES[codigo]
 
-        elif datos["tipo"] == "fijo":
-            if subtotal < datos["minimo"]:
-                raise CheckoutError(
-                    "CUPON_MINIMO_NO_ALCANZADO",
-                    f"El cupón requiere una compra mínima de ${datos['minimo']}",
-                )
-            descuento += datos["valor"]
+            if datos["tipo"] == "porcentaje":
+                if fecha > datos["vence"]:
+                    raise CheckoutError("CUPON_VENCIDO", "El cupón está vencido")
+
+                descuento_cupon = subtotal * datos["valor"]
+
+            elif datos["tipo"] == "fijo":
+                if subtotal < datos["minimo"]:
+                    raise CheckoutError(
+                        "CUPON_MINIMO_NO_ALCANZADO",
+                        "No se alcanza el mínimo del cupón",
+                    )
+
+                descuento_cupon = datos["valor"]
+
+    descuento = max(descuento_cantidad, descuento_cupon)
 
     return descuento.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
