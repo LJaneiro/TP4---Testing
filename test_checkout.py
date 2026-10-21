@@ -121,3 +121,17 @@ def test_validar_item_no_modifica_el_original():
 
     # Assert
     assert producto == original
+
+def test_subtotal_varios_productos():
+    # Arrange
+    carrito = [
+        item(producto="buzo", cantidad=2),
+        item(producto="remera", cantidad=1),
+        item(producto="campera", cantidad=1),
+    ]
+
+    # Act
+    subtotal = calcular_subtotal(carrito)
+
+    # Assert
+    assert subtotal == Decimal("109999.29")
