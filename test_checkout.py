@@ -257,3 +257,84 @@ def test_zona_invalida_lanza_error():
     assert codigo_de_error(
         calcular_envio, subtotal, "MARTE"
     ) == "ZONA_INVALIDA"
+
+def test_carrito_vacio_lanza_error():
+    # Arrange
+    carrito = []
+
+    # Act y Assert
+    assert codigo_de_error(
+        calcular_total, carrito, "CABA"
+    ) == "CARRITO_VACIO"
+
+
+def test_total_buzo_caba_sin_descuento():
+    # Arrange
+    carrito = [item(producto="buzo")]
+
+    # Act
+    resultado = calcular_total(carrito, "CABA")
+
+    # Assert
+    assert resultado["subtotal"] == Decimal("24999.90")
+    assert resultado["descuento"] == Decimal("0.00")
+    assert resultado["envio"] == Decimal("2500.00")
+    assert resultado["total"] == Decimal("27499.90")
+
+
+def test_envio_se_calcula_despues_del_descuento():
+    # Arrange
+    carrito = [
+        item(producto="remera", cantidad=5),
+        item(producto="buzo", cantidad=1),
+    ]
+
+    # Act
+    resultado = calcular_total(carrito, "CABA")
+
+    # Assert
+    assert resultado["subtotal"] == Decimal("84997.40")
+    assert resultado["descuento"] == Decimal("8499.74")
+    assert resultado["envio"] == Decimal("0.00")
+    assert resultado["total"] == Decimal("76497.66")
+
+
+def test_total_no_modifica_carrito():
+    # Arrange
+    carrito = [item(talle=" m ", cantidad=2)]
+    original = [producto.copy() for producto in carrito]
+
+    # Act
+    calcular_total(carrito, "CABA")
+
+    # Assert
+    assert carrito == original
+
+
+def test_total_con_cupon_bienvenida():
+    # Arrange
+    carrito = [item(producto="buzo")]
+
+    # Act
+    resultado = calcular_total(
+        carrito, "CABA", "BIENVENIDA", HOY_VIGENTE
+    )
+
+    # Assert
+    assert resultado["subtotal"] == Decimal("24999.90")
+    assert resultado["descuento"] == Decimal("3000.00")
+    assert resultado["envio"] == Decimal("2500.00")
+    assert resultado["total"] == Decimal("24499.90")
+
+def test_envio_se_cobra_si_descuento_baja_de_60000():
+    # Arrange
+    carrito = [item(producto="remera", cantidad=5)]
+
+    # Act
+    resultado = calcular_total(carrito, "CABA")
+
+    # Assert
+    assert resultado["subtotal"] == Decimal("59997.50")
+    assert resultado["descuento"] == Decimal("5999.75")
+    assert resultado["envio"] == Decimal("2500.00")
+    assert resultado["total"] == Decimal("56497.75")
