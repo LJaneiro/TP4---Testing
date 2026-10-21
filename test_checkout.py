@@ -81,3 +81,43 @@ def test_talle_con_espacios_es_valido():
 
     # Assert
     assert producto["talle"].strip().upper() == "M"
+
+@pytest.mark.parametrize("talle", ["XXXL", "", "M1", None, 123])
+def test_talles_invalidos(talle):
+    # Arrange
+    producto = item(talle=talle)
+
+    # Act y Assert
+    assert codigo_de_error(validar_item, producto) == "TALLE_INVALIDO"
+
+
+@pytest.mark.parametrize("cantidad", [0, 11, -1, 2.5, "3", True])
+def test_cantidades_invalidas(cantidad):
+    # Arrange
+    producto = item(cantidad=cantidad)
+
+    # Act y Assert
+    assert codigo_de_error(validar_item, producto) == "CANTIDAD_INVALIDA"
+
+
+def test_cantidad_diez_es_valida():
+    # Arrange
+    producto = item(cantidad=10)
+
+    # Act
+    validar_item(producto)
+
+    # Assert
+    assert producto["cantidad"] == 10
+
+
+def test_validar_item_no_modifica_el_original():
+    # Arrange
+    producto = item(talle=" m ")
+    original = producto.copy()
+
+    # Act
+    validar_item(producto)
+
+    # Assert
+    assert producto == original

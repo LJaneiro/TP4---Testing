@@ -45,17 +45,20 @@ ENVIOS = {
 
 
 def validar_item(item):
-    if item.get("producto") not in CATALOGO:
+    producto = item.get("producto")
+    if producto not in CATALOGO:
         raise CheckoutError("PRODUCTO_INEXISTENTE", "El producto no existe")
 
-    item["talle"] = item["talle"].strip().upper()
+    talle = item.get("talle")
+    if not isinstance(talle, str) or talle.strip().upper() not in TALLES:
+        raise CheckoutError("TALLE_INVALIDO", "El talle no es válido")
 
-    if item["talle"] not in TALLES:
-        raise CheckoutError("TALLE_INVALIDO", f"Talle inválido: {item['talle']}")
-
-    if not (1 <= item["cantidad"] < 10):
-        raise CheckoutError("CANTIDAD_INVALIDA", "La cantidad debe estar entre 1 y 10")
-
+    cantidad = item.get("cantidad")
+    if type(cantidad) is not int or not (1 <= cantidad <= 10):
+        raise CheckoutError(
+            "CANTIDAD_INVALIDA",
+            "La cantidad debe estar entre 1 y 10",
+        )
 
 def calcular_subtotal(carrito):
     subtotal = Decimal("0.00")
