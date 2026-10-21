@@ -50,3 +50,13 @@ def test_descuento_redondea_medio_centavo_hacia_arriba():
     # Assert
     assert descuento == Decimal("1799.93")
     assert isinstance(descuento, Decimal)
+
+def test_subtotal_ignora_precio_enviado_por_cliente():
+    # Arrange
+    carrito = [item(producto="buzo", cantidad=1, precio=1)]
+
+    # Act
+    subtotal = calcular_subtotal(carrito)
+
+    # Assert
+    assert subtotal == Decimal("24999.90")
