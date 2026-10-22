@@ -280,3 +280,32 @@ def test_precio_unitario_no_tiene_error_de_float(con):
     pedido = pedidos.obtener_pedido(con, pedido_id)
 
     assert pedido["items"][0]["precio_unitario"] == Decimal("47999.99")
+
+def test_cupon_vacio_se_guarda_como_none(con):
+    carrito = [item(producto="buzo")]
+
+    pedido_id = pedidos.guardar_pedido(
+        con, "cliente@gmail.com", carrito, "CABA",
+        cupon="   ", fecha=HOY_VIGENTE,
+    )
+
+    con.commit()
+    pedido = pedidos.obtener_pedido(con, pedido_id)
+
+    assert pedido["cupon"] is None
+
+
+def test_pedido_conserva_importes_decimal(con):
+    carrito = [item(producto="remera")]
+
+    pedido_id = pedidos.guardar_pedido(
+        con, "cliente@gmail.com", carrito, "CABA",
+        fecha=HOY_VIGENTE,
+    )
+
+    con.commit()
+    pedido = pedidos.obtener_pedido(con, pedido_id)
+
+    assert isinstance(pedido["subtotal"], Decimal)
+    assert pedido["subtotal"] == Decimal("11999.50")
+    assert pedido["total"] == Decimal("14499.50")
